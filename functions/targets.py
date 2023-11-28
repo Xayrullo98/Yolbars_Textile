@@ -51,6 +51,7 @@ def one_target(db, id):
 
 def update_target(form, thisuser, db):
     the_one(id=form.project_id, model=Projects, db=db)
+    the_one(db=db, model=Targets, id=form.id)
 
     db.query(Targets).filter(Targets.id == form.id).update({
         Targets.link: form.link,

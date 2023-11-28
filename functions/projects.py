@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
+from models.categories import Categories
+from utils.db_operations import the_one
 from utils.pagination import pagination
 from models.projects import Projects
 
@@ -42,6 +44,9 @@ def one_project(db, id):
 
 
 def update_project(form, thisuser, db):
+    the_one(db=db, model=Projects, id=form.id)
+    the_one(db=db, model=Categories, id=form.source_id)
+
     db.query(Projects).filter(Projects.id == form.id).update({
         Projects.name: form.name,
         Projects.comment: form.comment,

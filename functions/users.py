@@ -25,10 +25,10 @@ def all_users(search, role, page, limit, status, db):
 
 def create_user(form, db, thisuser):
     the_one_username(db=db, model=Users, username=form.username)
-    # if thisuser.role != 'admin':
-    #     raise HTTPException(status_code=400, detail="Sizga ruhsat berilmagan")
-    # if form.role not in ['admin', 'stage_admin', 'stage_user', 'warehouseman']:
-    #     raise HTTPException(status_code=400, detail="Role error")
+    if thisuser.role != 'admin':
+        raise HTTPException(status_code=400, detail="Sizga ruhsat berilmagan")
+    if form.role not in ['admin', 'stage_admin', 'stage_user', 'warehouseman']:
+        raise HTTPException(status_code=400, detail="Role error")
     new_user_db = Users(
         name=form.name,
         username=form.username,

@@ -43,6 +43,7 @@ def one_category(db, id):
 
 
 def update_category(form, thisuser, db):
+    the_one(db=db, model=Categories, id=form.id)
 
     db.query(Categories).filter(Categories.id == form.id).update({
         Categories.name: form.name,
