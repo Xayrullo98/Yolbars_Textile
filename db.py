@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-engine=create_engine('mysql+pymysql://root@localhost:3306/tiger')
+engine=create_engine('mysql+pymysql://crud:hdoB7WSac90rKCYV@localhost:3306/crud_system')
 # $2b$12$6zUrhmEQ6fUWCytj5nSjnu0qph2j81GhYpcoY1xgi36ojKObmDJ8i
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

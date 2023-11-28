@@ -1,59 +1,57 @@
 import inspect
-from typing import List
+import shutil
+import typing
 
-from fastapi import APIRouter, Depends, UploadFile, Form, File, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Body
 from sqlalchemy.orm import Session
+from functions.uploaded_files import create_uploaded_file, update_uploaded_files, all_uploaded_filess, \
+    one_uploaded_files, uploaded_files_delete
+from functions.uploaded_files import create_uploaded_file
 
-from db import database
-from functions.uploaded_files import create_file, update_file, delete_file
 from routes.login import get_current_active_user
-from schemes.users import CreateUser
 from utils.role_verification import role_verification
+from db import database
+from schemes.users import UserCurrent
 
 uploaded_files_router = APIRouter(
     prefix="/uploaded_files",
-    tags=["Uploaded_files Endpoints"]
+    tags=["uploaded_files operation"]
 )
 
 
-
-@uploaded_files_router.post("/create")
-def upload_files(
-        new_files: List[UploadFile] = File(...),
-        source: str = Form(...),
-        source_id: int = Form(...),
-        comment: str = Form(None),
-        db: Session = Depends(database),
-        current_user: CreateUser = Depends(get_current_active_user)
-        ):
-
+@uploaded_files_router.post('/add', )
+def add_uploaded_files(
+        source_id: int = Body(''),
+        source: str = Body(''),
+        comment: typing.Optional[str] = Body(''),
+        files: typing.Optional[typing.List[UploadFile]] = File(None), db: Session = Depends(database),
+        current_user: UserCurrent = Depends(get_current_active_user)):
     role_verification(current_user, inspect.currentframe().f_code.co_name)
-    create_file(new_files, source, source_id, comment, current_user, db)
-    return {"message": f"{len(new_files)} fayl bazaga saqlandi"}
+    if files:
+        for file in files:
+            with open("media/" + file.filename, 'wb') as image:
+                shutil.copyfileobj(file.file, image)
+            url = str('media/' + file.filename)
+            create_uploaded_file(source_id=source_id, source=source, file_url=url, comment=comment,
+                                 user=current_user, db=db)
+    raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 
-@uploaded_files_router.put("/update")
-def file_update(
-        new_file: UploadFile = File(None),
-        id: int = Form(...),
-        source: str = Form(...),
-        source_id: int = Form(...),
-        comment: str = Form(None),
-        db: Session = Depends(database),
-        current_user: CreateUser = Depends(get_current_active_user)
-):
+@uploaded_files_router.get('/', status_code=200)
+def get_uploaded_files(search: str = None, id: int = 0, source: str = None, source_id: int = 0, page: int = 1,
+                       limit: int = 25, status: bool = None, db: Session = Depends(database),
+                       current_user: UserCurrent = Depends(get_current_active_user)):
+    if id:
+        return one_uploaded_files(db, id)
+    else:
+        role_verification(current_user, inspect.currentframe().f_code.co_name)
+        return all_uploaded_filess(search=search, source=source, source_id=source_id, page=page, limit=limit,
+                                   status=status, db=db, )
+
+
+@uploaded_files_router.delete("/delete")
+def uploaded_files_updateid(id: int = 0, db: Session = Depends(database),
+                            current_user: UserCurrent = Depends(get_current_active_user)):
     role_verification(current_user, inspect.currentframe().f_code.co_name)
-    update_file(id, new_file, source, source_id, comment, current_user, db)
-    raise HTTPException(status_code=200, detail='Amaliyot muvaffaqiyatli yakunlandi')
-
-
-@uploaded_files_router.delete("/delete", description="id bo'yicha barcha medialarni o'chirish")
-def delete_files(id: int = Form(...), db: Session = Depends(database),
-                 current_user: CreateUser = Depends(get_current_active_user)):
-
-    role_verification(current_user, inspect.currentframe().f_code.co_name)
-    delete_file(id, db)
-    raise HTTPException(status_code=200, detail='Amaliyot muvaffaqiyatli yakunlandi')
-
-
-
+    uploaded_files_delete(id, current_user, db)
+    raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")

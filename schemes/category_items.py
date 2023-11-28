@@ -3,13 +3,13 @@ from pydantic import BaseModel
 
 
 class CreateCategories(BaseModel):
-    name: str
-    comment: Optional[str]=''
-    
+    text: str
+    category_id: int
+
 
 
 class UpdateCategories(BaseModel):
     id: int
-    name: str
-    comment: Optional[str] = ''
+    category_id: int
+    number: int
     status: bool

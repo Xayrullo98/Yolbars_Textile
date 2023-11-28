@@ -7,7 +7,6 @@ from routes.login import get_current_active_user
 from utils.role_verification import role_verification
 from schemes.users import CreateUser,UpdateUser
 from db import database
-from utils.db_operations import the_one
 from schemes.users import UserCurrent
 users_router = APIRouter(
     prefix="/users",
@@ -17,7 +16,7 @@ users_router = APIRouter(
 
 @users_router.post('/add', )
 def add_user(form: CreateUser, db: Session = Depends(database),
-             current_user: UserCurrent = Depends(get_current_active_user)):
+             current_user: UserCurrent = Depends(get_current_active_user)):      #
 
     role_verification(current_user, inspect.currentframe().f_code.co_name)
     create_user(form=form, db=db, thisuser=current_user)

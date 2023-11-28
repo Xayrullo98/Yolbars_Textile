@@ -1,26 +1,22 @@
 from typing import List
 from pydantic import BaseModel
-from schemes.phones import CreatePhone, UpdatePhone
 
 
 class CreateUser(BaseModel):
     name: str
     username: str
-    password_hash: str
+    password:str
+    phone: str
     role: str
-    salary: float
-    phones: List[CreatePhone]
 
 
 class UpdateUser(BaseModel):
     id: int
     name: str
     username: str
-    password_hash: str
+    phone: str
     role: str
     status: bool
-    salary: float
-    phones: List[UpdatePhone]
 
 
 class TokenUser(BaseModel):
@@ -34,7 +30,6 @@ class UserCurrent(BaseModel):
     id: int
     name: str
     username: str
-    password_hash: str
+    password: str
     role: str
     status: bool
-

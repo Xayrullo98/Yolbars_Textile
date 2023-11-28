@@ -6,7 +6,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm.session import Session
 from db import database
-from functions.expired import token_has_expired
 
 from models.users import Users
 from schemes.tokens import TokenData, Token
@@ -69,7 +68,7 @@ async def get_current_active_user(current_user: CreateUser = Depends(get_current
 async def login_for_access_token(db: Session = Depends(database), form_data: OAuth2PasswordRequestForm = Depends()):
     user = db.query(Users).where(Users.username == form_data.username).first()
     if user:
-        is_validate_password = pwd_context.verify(form_data.password, user.password_hash)
+        is_validate_password = pwd_context.verify(form_data.password, user.password)
     else:
         is_validate_password = False
 
@@ -103,11 +102,7 @@ async def refresh_token(
             detail="Token error",
         )
 
-    if not token_has_expired(token):
-        raise HTTPException(
-            status_code=400,
-            detail="Token has not expired",
-        )
+
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
