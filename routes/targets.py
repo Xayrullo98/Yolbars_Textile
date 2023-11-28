@@ -26,12 +26,12 @@ def add_targets(form: CreateTarget, db: Session = Depends(database),
 @targets_router.get('/', status_code=200)
 def get_targets(search: str = None,  id: int = 0, page: int = 1,
               limit: int = 25, status: bool = None, db: Session = Depends(database),
-              current_user: UserCurrent = Depends(get_current_active_user)):
+              ):
 
     if id:
         return one_target(db, id)
     else:
-        role_verification(current_user, inspect.currentframe().f_code.co_name)
+        # role_verification(current_user, inspect.currentframe().f_code.co_name)
         return all_targets(search=search,  page=page, limit=limit, status=status, db=db, )
 
 

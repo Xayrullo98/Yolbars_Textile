@@ -57,18 +57,25 @@ def update_user(form, thisuser, db):
         raise HTTPException(status_code=400, detail="Role error")
     if db.query(Users).filter(Users.username == form.username).first() and user.username != form.username:
         raise HTTPException(status_code=400, detail="Bu username bazada mavjud")
-
-
-    db.query(Users).filter(Users.id == form.id).update({
+    if form.password:
+        db.query(Users).filter(Users.id == form.id).update({
+                Users.name: form.name,
+                Users.username: form.username,
+                Users.password: get_password_hash(form.password),
+                Users.phone: form.phone,
+                Users.status: form.status,
+                Users.role: form.role,
+            })
+        db.commit()
+    else:
+        db.query(Users).filter(Users.id == form.id).update({
             Users.name: form.name,
             Users.username: form.username,
-            Users.password: get_password_hash(form.password),
             Users.phone: form.phone,
             Users.status: form.status,
             Users.role: form.role,
         })
+        db.commit()
 
-
-    db.commit()
 
 
