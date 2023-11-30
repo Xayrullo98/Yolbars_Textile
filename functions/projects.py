@@ -43,16 +43,15 @@ def one_project(db, id):
     raise HTTPException(status_code=400, detail="bunday user mavjud emas")
 
 
-def update_project(form, thisuser, db):
-    the_one(db=db, model=Projects, id=form.id)
-    the_one(db=db, model=Categories, id=form.source_id)
+def update_project(id,name,comment,url,source_id, thisuser, db):
+    the_one(db=db, model=Projects, id=id)
+    the_one(db=db, model=Categories, id=source_id)
 
-    db.query(Projects).filter(Projects.id == form.id).update({
-        Projects.name: form.name,
-        Projects.comment: form.comment,
-        Projects.url: form.url,
-        Projects.source_id: form.source_id,
-        Projects.status: form.status,
-    })
+    db.query(Projects).filter(Projects.id == id).update({
+        Projects.name: name,
+        Projects.comment: comment,
+        Projects.url: url,
+        Projects.source_id: source_id,
+     })
 
     db.commit()

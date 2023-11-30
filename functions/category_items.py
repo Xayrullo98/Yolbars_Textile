@@ -41,13 +41,12 @@ def one_category_item(db, id):
     raise HTTPException(status_code=400, detail="bunday user mavjud emas")
 
 
-def update_category_item(form, thisuser, db):
-    the_one(id=form.category_id, model=Categories, db=db)
-    the_one(id=form.id, model=Category_items, db=db)
-    db.query(Category_items).filter(Category_items.id == form.id).update({
-        Category_items.text: form.text,
-        Category_items.category_id: form.category_id,
-        Category_items.status: form.status,
-    })
+def update_category_item(id,text,category_id, thisuser, db):
+    the_one(id=category_id, model=Categories, db=db)
+    the_one(id=id, model=Category_items, db=db)
+    db.query(Category_items).filter(Category_items.id == id).update({
+        Category_items.text: text,
+        Category_items.category_id: category_id,
+     })
 
     db.commit()

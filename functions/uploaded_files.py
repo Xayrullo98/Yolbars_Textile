@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-
+import os
 from functions.users import one_user
 from models.uploaded_files import Uploaded_files
 import datetime
@@ -42,7 +42,7 @@ def one_uploaded_files(id, db):
 
 def one_uploaded_file_via_source(source_id, source, db):
     return db.query(Uploaded_files).filter(Uploaded_files.source_id == source_id,
-                                           Uploaded_files.source == source).first()
+                                           Uploaded_files.source == source).all()
 
 
 def create_uploaded_file(source_id, source, file_url, comment, user, db):
@@ -84,8 +84,15 @@ def update_uploaded_files(form, user, db):
 def uploaded_files_delete(id, cur_user, db):
     if one_uploaded_files(id, db) is None:
         raise HTTPException(status_code=400, detail="Bunday id raqamli ma'lumot mavjud emas")
-    db.query(Uploaded_files).filter(Uploaded_files.id == id).update({
-        Uploaded_files.status: False,
-    })
+    file = one_uploaded_files(id=id,db=db)
+    os.unlink(file.file)
+    db.query(Uploaded_files).filter(Uploaded_files.id == id).delete()
+    db.commit()
+    return {"date": "Ma'lumot o'chirildi !"}
+
+def file_delete(id, cur_user, db):
+    if one_uploaded_files(id, db) is None:
+        raise HTTPException(status_code=400, detail="Bunday id raqamli ma'lumot mavjud emas")
+    db.query(Uploaded_files).filter(Uploaded_files.id == id).delete()
     db.commit()
     return {"date": "Ma'lumot o'chirildi !"}

@@ -1,4 +1,5 @@
 import inspect
+import os
 import shutil
 
 from fastapi import APIRouter, HTTPException, Depends, Body, UploadFile, File
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 from functions.category_items import create_category_item, update_category_item, all_category_items, one_category_item
 import typing
 
-from functions.uploaded_files import create_uploaded_file
+from functions.uploaded_files import create_uploaded_file, one_uploaded_file_via_source, file_delete
 from routes.login import get_current_active_user
 from utils.role_verification import role_verification
 from schemes.category_items import CreateCategories,UpdateCategories
@@ -78,11 +79,30 @@ def get_category_items(search: str = None,  id: int = 0, page: int = 1,
 
 
 @category_items_router.put("/update")
-def category_items_update(form: UpdateCategories, db: Session = Depends(database),
+def category_items_update(text: typing.Optional[str] = Body ( '' ),
+                       id:int = Body ( '' ),
+                       category_id:int = Body ( '' ),
+                       comment: typing.Optional[str] = Body ( '' ),
+                       files: typing.Optional[typing.List[UploadFile]] = File (None), db: Session = Depends(database),
                 current_user: UserCurrent = Depends(get_current_active_user)):
 
     role_verification(current_user, inspect.currentframe().f_code.co_name)
-    update_category_item(form, current_user, db)
+    update_category_item(id=id,text=text,category_id=category_id,thisuser= current_user, db=db)
+    old_files = one_uploaded_file_via_source(source_id=id, source="category_item", db=db)
+    for file in old_files:
+        try:
+            os.unlink(file.file)
+            file_delete(id=file.id, cur_user=current_user, db=db)
+
+        except Exception as a:
+                pass
+    if files:
+        for file in files:
+            with open("media/" + file.filename, 'wb') as image:
+                shutil.copyfileobj(file.file, image)
+            url = str('media/' + file.filename)
+            create_uploaded_file(source_id=id, source="category_item", file_url=url, comment=comment,
+                                 user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 
