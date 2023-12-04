@@ -26,15 +26,15 @@ def add_projects(name: str = Body(''),
                  url: str = Body(''),
                  source_id: int = Body(''),
                  comment: typing.Optional[str] = Body(''),
-                 files: typing.Optional[typing.List[UploadFile]] = File(None), db: Session = Depends(database),
+                 files: typing.Optional[UploadFile] = File(None), db: Session = Depends(database),
                  current_user: UserCurrent = Depends(get_current_active_user)):
     role_verification(current_user, inspect.currentframe().f_code.co_name)
     response = create_project(name=name,url=url,source_id=source_id,comment=comment, db=db, thisuser=current_user)
     if files:
-        for file in files:
-            with open("media/" + file.filename, 'wb') as image:
-                shutil.copyfileobj(file.file, image)
-            url = str('media/' + file.filename)
+        # for file in files:
+            with open("media/" + files.filename, 'wb') as image:
+                shutil.copyfileobj(files.file, image)
+            url = str('media/' + files.filename)
             create_uploaded_file(source_id=response.get('id'), source="project", file_url=url, comment=comment,
                                  user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
@@ -57,7 +57,7 @@ def projects_update(name: str = Body(...),
                  id: int = Body(...),
                  source_id: int = Body(...),
                  comment: typing.Optional[str] = Body(...),
-                 files: typing.Optional[typing.List[UploadFile]] = File(None), db: Session = Depends(database),
+                 files: typing.Optional[UploadFile] = File(None), db: Session = Depends(database),
                     current_user: UserCurrent = Depends(get_current_active_user)):
     role_verification(current_user, inspect.currentframe().f_code.co_name)
     update_project(name=name,id=id,comment=comment,url=url,source_id=source_id, thisuser=current_user, db=db)
@@ -70,10 +70,10 @@ def projects_update(name: str = Body(...),
         except Exception as a :
             print(a,'fffffffffffffffffffff')
     if files:
-        for file in files:
-            with open("media/" + file.filename, 'wb') as image:
-                shutil.copyfileobj(file.file, image)
-            url = str('media/' + file.filename)
+        # for file in files:
+            with open("media/" + files.filename, 'wb') as image:
+                shutil.copyfileobj(files.file, image)
+            url = str('media/' + files.filename)
             create_uploaded_file(source_id=id, source="project", file_url=url, comment=comment,
                                  user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")

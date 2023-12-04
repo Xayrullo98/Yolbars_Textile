@@ -50,17 +50,17 @@ id: int = Body ( ..., ge=0 ),
 def add_category_items(text: typing.Optional[str] = Body ( '' ),
                        category_id:int = Body ( '' ),
                        comment: typing.Optional[str] = Body ( '' ),
-                       files: typing.Optional[typing.List[UploadFile]] = File (None), db: Session = Depends(database),
+                       files: typing.Optional[UploadFile] = File (None), db: Session = Depends(database),
                        current_user: UserCurrent = Depends(get_current_active_user)):
 
     role_verification(current_user, inspect.currentframe().f_code.co_name)
 
     response = create_category_item(text=text,category_id=category_id, db=db, thisuser=current_user)
     if files:
-        for file in files:
-            with open("media/" + file.filename, 'wb') as image:
-                shutil.copyfileobj(file.file, image)
-            url = str('media/' + file.filename)
+        # for file in files:
+            with open("media/" + files.filename, 'wb') as image:
+                shutil.copyfileobj(files.file, image)
+            url = str('media/' + files.filename)
             create_uploaded_file(source_id=response.get('id'), source="category_item", file_url=url, comment=comment,
                                  user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
@@ -83,7 +83,7 @@ def category_items_update(text: typing.Optional[str] = Body ( '' ),
                        id:int = Body ( '' ),
                        category_id:int = Body ( '' ),
                        comment: typing.Optional[str] = Body ( '' ),
-                       files: typing.Optional[typing.List[UploadFile]] = File (None), db: Session = Depends(database),
+                       files: typing.Optional[UploadFile] = File (None), db: Session = Depends(database),
                 current_user: UserCurrent = Depends(get_current_active_user)):
 
     role_verification(current_user, inspect.currentframe().f_code.co_name)
@@ -97,10 +97,10 @@ def category_items_update(text: typing.Optional[str] = Body ( '' ),
         except Exception as a:
                 pass
     if files:
-        for file in files:
-            with open("media/" + file.filename, 'wb') as image:
-                shutil.copyfileobj(file.file, image)
-            url = str('media/' + file.filename)
+        # for file in files:
+            with open("media/" + files.filename, 'wb') as image:
+                shutil.copyfileobj(files.file, image)
+            url = str('media/' + files.filename)
             create_uploaded_file(source_id=id, source="category_item", file_url=url, comment=comment,
                                  user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")

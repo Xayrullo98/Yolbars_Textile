@@ -24,14 +24,14 @@ def add_uploaded_files(
         source_id: int = Body(''),
         source: str = Body(''),
         comment: typing.Optional[str] = Body(''),
-        files: typing.Optional[typing.List[UploadFile]] = File(None), db: Session = Depends(database),
+        files: typing.Optional[UploadFile] = File(None), db: Session = Depends(database),
         current_user: UserCurrent = Depends(get_current_active_user)):
     role_verification(current_user, inspect.currentframe().f_code.co_name)
     if files:
-        for file in files:
-            with open("media/" + file.filename, 'wb') as image:
-                shutil.copyfileobj(file.file, image)
-            url = str('media/' + file.filename)
+        # for file in files:
+            with open("media/" + files.filename, 'wb') as image:
+                shutil.copyfileobj(files.file, image)
+            url = str('media/' + files.filename)
             create_uploaded_file(source_id=source_id, source=source, file_url=url, comment=comment,
                                  user=current_user, db=db)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
