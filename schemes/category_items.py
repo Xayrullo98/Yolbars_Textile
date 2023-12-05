@@ -4,12 +4,12 @@ from pydantic import BaseModel
 
 class CreateCategories(BaseModel):
     text: str
-    category_id: int
+    project_id: int
 
 
 
 class UpdateCategories(BaseModel):
     id: int
-    category_id: int
+    project_id: int
     number: int
     status: bool
